@@ -10,6 +10,8 @@ It runs on tablets, phones, and computers. There is nothing to install.
 
 Crooks have a red **!** over them, and arrows at the edge of the screen and the minimap show where they are. Run into one to catch it, or catch it with a gadget for bigger pay. Spend your money in **🧪 The Lab** on new gadgets. Every gadget has tests that pay extra when you finish them.
 
+Play from behind your tester (3rd person) or out of their goggles (1st person), where you see your arms reach out with each hook. Switch with the **👁** chip, `V`, the right stick click, or **View** in the menu.
+
 Your money, gadgets and finished tests are saved on the device.
 
 ### Gadgets
@@ -31,6 +33,7 @@ Your money, gadgets and finished tests are saved on the device.
 | `Space` | Jump (again in the air for a flip jump) |
 | `Shift` | Reel your hooks in |
 | `F` | Use your gadget (hold for Rocket Boots) |
+| `V` | Switch between 1st and 3rd person |
 | `1`–`6`, mouse wheel | Switch gadget |
 | `Tab` | The Lab |
 | `Esc` | Menu |
@@ -46,6 +49,7 @@ Your money, gadgets and finished tests are saved on the device.
 | `RB` or `X` | Use your gadget |
 | `LB` or `B` | Reel your hooks in |
 | `Y`, D-pad | Switch gadget |
+| Right stick click | Switch between 1st and 3rd person |
 | `Start` | The Lab |
 | `Back` | Menu |
 
@@ -57,6 +61,7 @@ On menus, the D-pad or left stick moves between buttons, `A` picks, and `B` goes
 - **Tap the city** to shoot a hook right where you tapped: the left half of the screen is your left arm, the right half is your right. Tap that hook's button to let go.
 - Or hold a hook button to hang on and let go to release.
 - The other buttons jump, use your gadget, and reel in.
+- The **👁** chip at the top switches between 1st and 3rd person.
 
 ### Camera wands
 

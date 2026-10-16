@@ -33,6 +33,7 @@ addEventListener('keydown', e => {
     else if (k === 'KeyQ') holdHook(0, 'kq', true);
     else if (k === 'KeyE') holdHook(1, 'ke', true);
     else if (k === 'KeyF') inp.gPressQ = true;
+    else if (k === 'KeyV') toggleView();
     else if (/^Digit[1-6]$/.test(k)) selectGadget(+k.slice(5) - 1);
     else if (k === 'Tab') openLab();
     else if (k === 'Escape') openMenu();
@@ -166,6 +167,7 @@ function pollPads(dt, acc) {
       if (cur[4] || cur[1]) held.padReel = true;
       if (pressed(3) || pressed(15)) cycleGadget(1);
       if (pressed(14)) cycleGadget(-1);
+      if (pressed(11)) toggleView();
       if (pressed(9)) openLab();
       if (pressed(8)) openMenu();
     } else {

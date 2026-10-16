@@ -25,6 +25,7 @@ scene.add(sky);
 
 makePeople();
 makePlayer();
+setView(firstPerson);
 camYaw = 0; camPitch = 0.12;
 updateCashUI(); updateGadgetUI();
 

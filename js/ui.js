@@ -54,6 +54,20 @@ function cycleGadget(dir) {
 $('gPrev').addEventListener('click', () => cycleGadget(-1));
 $('gNext').addEventListener('click', () => cycleGadget(1));
 
+// ---- 1st / 3rd person ----
+function setView(fp) {
+  firstPerson = fp;
+  player.bodyParts.forEach(o => { o.visible = !fp; });
+  // in 1st person the arms sit a bit lower and smaller so they don't fill the screen
+  player.arms.forEach((a, s) => { a.position.set((s ? -1 : 1) * (fp ? 0.36 : 0.42), fp ? 1.47 : 1.52, fp ? 0.2 : 0); a.scale.setScalar(fp ? 0.6 : 1); });
+  $('viewBtn').textContent = fp ? '👁 1st' : '👁 3rd';
+  document.querySelectorAll('#viewSeg button').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.v === '1') === fp)));
+  try { localStorage.setItem('gadget-lab-view', fp ? '1st' : '3rd'); } catch (e) {}
+}
+const toggleView = () => { setView(!firstPerson); SFX.click(); };
+$('viewBtn').addEventListener('click', toggleView);
+document.querySelectorAll('#viewSeg button').forEach(b => b.addEventListener('click', () => setView(b.dataset.v === '1')));
+
 // ---- the Lab ----
 function renderLab() {
   updateCashUI();

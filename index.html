@@ -27,6 +27,7 @@
   </div>
   <canvas id="minimap" width="200" height="200"></canvas>
   <div id="topRight">
+    <button id="viewBtn" class="chip" aria-label="Switch between 1st and 3rd person">👁 3rd</button>
     <button id="labBtn" class="chip">🧪 Lab</button>
     <button id="menuBtn" class="chip" aria-label="Menu">☰</button>
   </div>
@@ -63,6 +64,9 @@
     <p>You're the Lab's gadget tester. Swing through the city on your arm hooks, try new gadgets on real crooks, and get paid for every test.</p>
     <button id="playBtn" class="big">Play</button>
     <button id="menuLabBtn" class="big alt">🧪 The Lab</button>
+    <div class="row"><span>View</span>
+      <div class="seg" id="viewSeg"><button data-v="3">3rd person</button><button data-v="1">1st person</button></div>
+    </div>
 
     <details>
       <summary>Keyboard and mouse</summary>
@@ -74,6 +78,7 @@
         <tr><td>Space</td><td>Jump (press again in the air for a flip jump)</td></tr>
         <tr><td>Shift</td><td>Reel your hooks in</td></tr>
         <tr><td>F</td><td>Use your gadget (hold for Rocket Boots)</td></tr>
+        <tr><td>V</td><td>Switch between 1st and 3rd person</td></tr>
         <tr><td>1 – 6, mouse wheel</td><td>Switch gadget</td></tr>
         <tr><td>Tab</td><td>The Lab</td></tr>
         <tr><td>Esc</td><td>Menu</td></tr>
@@ -89,6 +94,7 @@
         <tr><td>RB or X</td><td>Use your gadget</td></tr>
         <tr><td>LB or B</td><td>Reel your hooks in</td></tr>
         <tr><td>Y, D-pad</td><td>Switch gadget</td></tr>
+        <tr><td>Right stick click</td><td>Switch between 1st and 3rd person</td></tr>
         <tr><td>Start</td><td>The Lab</td></tr>
         <tr><td>Back</td><td>Menu</td></tr>
       </table>
@@ -101,6 +107,7 @@
         <tr><td>Tap the city</td><td>Shoots a hook right where you tapped (left half = left arm, right half = right arm). Tap a hook button to let go</td></tr>
         <tr><td>Hook buttons</td><td>Hold to hang on, let go to release</td></tr>
         <tr><td>Gadget</td><td>Use your gadget</td></tr>
+        <tr><td>👁 button</td><td>Switch between 1st and 3rd person</td></tr>
       </table>
     </details>
     <details id="camDetails">

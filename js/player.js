@@ -43,6 +43,7 @@ function makePlayer() {
     box(0.08, 0.08, 0.1, dark, 0, 0, 0.85, piv);
     return piv;
   });
+  player.bodyParts = g.children.filter(c => !player.arms.includes(c)); // hidden in 1st person, so only your arms show
   scene.add(g);
   player.mesh = g;
 
@@ -226,11 +227,12 @@ function updatePlayer(dt) {
 function animatePlayer(dt, sp, ground) {
   const P = player, g = P.mesh;
   const hsp = Math.hypot(P.vel.x, P.vel.z);
-  if (hsp > 1.5) P.bodyYaw += angDiff(Math.atan2(P.vel.x, P.vel.z), P.bodyYaw) * Math.min(1, dt * 10);
+  if (firstPerson) P.bodyYaw = camYaw + Math.PI; // your shoulders stay where you're looking
+  else if (hsp > 1.5) P.bodyYaw += angDiff(Math.atan2(P.vel.x, P.vel.z), P.bodyYaw) * Math.min(1, dt * 10);
   else if (P.hooks.some(h => h.state !== 'none')) P.bodyYaw += angDiff(camYaw + Math.PI, P.bodyYaw) * Math.min(1, dt * 8);
   g.position.copy(P.pos);
   g.rotation.set(0, P.bodyYaw, 0);
-  if (P.flip > 0) { P.flip = Math.max(0, P.flip - dt * 2.6); g.rotation.x = (1 - P.flip) * Math.PI * 2; }
+  if (P.flip > 0) { P.flip = Math.max(0, P.flip - dt * 2.6); if (!firstPerson) g.rotation.x = (1 - P.flip) * Math.PI * 2; }
   P.phase += dt * (ground ? hsp * 1.1 : 4);
   const leg = ground ? Math.sin(P.phase) * Math.min(1, hsp / 6) * 0.9 : 0.5;
   P.legs[0].rotation.x = leg; P.legs[1].rotation.x = ground ? -leg : -0.2;
@@ -258,15 +260,26 @@ function animatePlayer(dt, sp, ground) {
     } else h.tip.copy(h.anchor);
     const len = hand.distanceTo(h.tip);
     h.rope.visible = h.claw.visible = len > 0.05;
-    h.rope.position.copy(hand); h.rope.lookAt(h.tip); h.rope.scale.set(1, 1, len);
+    h.rope.position.copy(hand); h.rope.lookAt(h.tip); const thick = firstPerson ? 0.45 : 1; // thinner right next to your eyes
+    h.rope.scale.set(thick, thick, len);
     h.claw.position.copy(h.tip); h.claw.lookAt(pv.b.copy(h.tip).sub(hand).add(h.tip));
   }
 }
 
-let lastLookT = 0, autoCam = false;
+let lastLookT = 0, autoCam = false, firstPerson = false;
+try { firstPerson = localStorage.getItem('gadget-lab-view') === '1st'; } catch (e) {}
 const camT = { f: new V(), t: new V(), b: new V() };
 function updateCamera(dt) {
   const P = player, hsp = Math.hypot(P.vel.x, P.vel.z), sp = P.vel.length();
+  const fov = 70 + Math.min(sp, 60) * 0.33;
+  if (Math.abs(camera.fov - fov) > 0.05) { camera.fov += (fov - camera.fov) * Math.min(1, dt * 4); camera.updateProjectionMatrix(); }
+  if (firstPerson) {
+    // looking out of your goggles; the camera never turns on its own here
+    const F = dirFrom(camYaw, camPitch, camT.f);
+    camera.position.copy(P.pos); camera.position.y += 1.82;
+    camera.lookAt(pv.a.copy(camera.position).add(F));
+    return;
+  }
   // on touch, controllers and wands the camera slowly turns to follow where you're going
   if (autoCam && performance.now() - lastLookT > 1400 && hsp > 5)
     camYaw += angDiff(Math.atan2(-P.vel.x, -P.vel.z), camYaw) * Math.min(1, dt * 0.9);
@@ -279,6 +292,4 @@ function updateCamera(dt) {
   camera.position.copy(target).addScaledVector(back, dist);
   if (camera.position.y < 0.4) camera.position.y = 0.4;
   camera.lookAt(pv.a.copy(camera.position).add(F));
-  const fov = 70 + Math.min(sp, 60) * 0.33;
-  if (Math.abs(camera.fov - fov) > 0.05) { camera.fov += (fov - camera.fov) * Math.min(1, dt * 4); camera.updateProjectionMatrix(); }
 }
