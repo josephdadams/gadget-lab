@@ -1,0 +1,42 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one deploy at a time; a newer push cancels an older one that hasn't finished.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # Stamp the commit into APP_VERSION so open games show the "new version" banner, without bumping it by hand.
+      - name: Stamp version
+        run: |
+          mkdir -p _site
+          cp -r index.html style.css js LICENSE README.md manifest.webmanifest icons _site/
+          sed -i -E "s/const APP_VERSION = '([^']*)'/const APP_VERSION = '\1-${GITHUB_SHA::7}'/" _site/index.html
+          grep -o "const APP_VERSION = '[^']*'" _site/index.html
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v5

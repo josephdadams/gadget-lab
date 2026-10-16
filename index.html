@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Gadget Lab</title>
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#14213d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gadget Lab">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;800&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="hud" hidden>
+  <div id="topLeft">
+    <div class="chip">💵 $<b id="cashN">0</b></div>
+    <div class="chip">🚔 <b id="caughtN">0</b></div>
+  </div>
+  <canvas id="minimap" width="200" height="200"></canvas>
+  <div id="topRight">
+    <button id="labBtn" class="chip">🧪 Lab</button>
+    <button id="menuBtn" class="chip" aria-label="Menu">☰</button>
+  </div>
+  <div id="alert" hidden></div>
+  <div id="toasts"></div>
+  <div id="hint"></div>
+  <div id="cross"></div>
+  <div id="retL" class="ret"></div>
+  <div id="retR" class="ret"></div>
+  <div id="wandDot0" class="wandDot" hidden></div>
+  <div id="wandDot1" class="wandDot" hidden></div>
+  <div id="arrows"></div>
+  <div id="floaters"></div>
+  <div id="gadgetBar">
+    <button id="gPrev" class="gArrow" aria-label="Previous gadget">◀</button>
+    <div id="gadgetChip"><span id="gIcon">🪝</span><span id="gName">Grapple Hooks</span><div id="fuel"><i></i></div></div>
+    <button id="gNext" class="gArrow" aria-label="Next gadget">▶</button>
+  </div>
+  <div id="touchUI">
+    <div id="stick"><div id="knob"></div></div>
+    <button class="tbtn" id="tHookL">🪝<small>Left hook</small></button>
+    <button class="tbtn" id="tHookR">🪝<small>Right hook</small></button>
+    <button class="tbtn" id="tJump">⤴<small>Jump</small></button>
+    <button class="tbtn" id="tGadget"><span id="tGIcon">🪝</span><small>Gadget</small></button>
+    <button class="tbtn small" id="tReel">⇡<small>Reel</small></button>
+  </div>
+  <canvas id="camView" width="160" height="120" hidden></canvas>
+</div>
+
+<div id="menu">
+  <div class="card">
+    <h1>GADGET<br><span>LAB</span></h1>
+    <p class="tag">City Test Division</p>
+    <p>You're the Lab's gadget tester. Swing through the city on your arm hooks, try new gadgets on real crooks, and get paid for every test.</p>
+    <button id="playBtn" class="big">Play</button>
+    <button id="menuLabBtn" class="big alt">🧪 The Lab</button>
+
+    <details>
+      <summary>Keyboard and mouse</summary>
+      <table>
+        <tr><td>W A S D</td><td>Run (arrow keys work too)</td></tr>
+        <tr><td>Mouse</td><td>Look around (click the game first)</td></tr>
+        <tr><td>Left / right click</td><td>Shoot left / right hook. Hold to hang on, let go to release</td></tr>
+        <tr><td>Q / E</td><td>Left / right hook, same as the mouse</td></tr>
+        <tr><td>Space</td><td>Jump (press again in the air for a flip jump)</td></tr>
+        <tr><td>Shift</td><td>Reel your hooks in</td></tr>
+        <tr><td>F</td><td>Use your gadget (hold for Rocket Boots)</td></tr>
+        <tr><td>1 – 6, mouse wheel</td><td>Switch gadget</td></tr>
+        <tr><td>Tab</td><td>The Lab</td></tr>
+        <tr><td>Esc</td><td>Menu</td></tr>
+      </table>
+    </details>
+    <details>
+      <summary>Controller</summary>
+      <table>
+        <tr><td>Left stick</td><td>Run</td></tr>
+        <tr><td>Right stick</td><td>Look around</td></tr>
+        <tr><td>LT / RT</td><td>Left / right hook (hold to hang on)</td></tr>
+        <tr><td>A</td><td>Jump</td></tr>
+        <tr><td>RB or X</td><td>Use your gadget</td></tr>
+        <tr><td>LB or B</td><td>Reel your hooks in</td></tr>
+        <tr><td>Y, D-pad</td><td>Switch gadget</td></tr>
+        <tr><td>Start</td><td>The Lab</td></tr>
+        <tr><td>Back</td><td>Menu</td></tr>
+      </table>
+    </details>
+    <details>
+      <summary>Touch</summary>
+      <table>
+        <tr><td>Left thumb</td><td>Drag anywhere on the left to run</td></tr>
+        <tr><td>Right thumb</td><td>Drag to look around</td></tr>
+        <tr><td>Tap the city</td><td>Shoots a hook right where you tapped (left half = left arm, right half = right arm). Tap a hook button to let go</td></tr>
+        <tr><td>Hook buttons</td><td>Hold to hang on, let go to release</td></tr>
+        <tr><td>Gadget</td><td>Use your gadget</td></tr>
+      </table>
+    </details>
+    <details id="camDetails">
+      <summary>Camera wands</summary>
+      <p class="small">Hold a brightly colored wand in each hand (a painted ping-pong ball or a circle of craft foam on a stick works great). The game starts out looking for <b>neon green on the left</b> and <b>hot pink on the right</b>.</p>
+      <table>
+        <tr><td>Flick a wand up</td><td>Shoots that arm's hook where the wand is pointing (you'll see a colored circle on the screen)</td></tr>
+        <tr><td>Flick a wand down</td><td>Lets go of that hook. With no hooks out, jumps</td></tr>
+        <tr><td>Both wands high</td><td>Run forward</td></tr>
+        <tr><td>Both wands left or right</td><td>Turn</td></tr>
+        <tr><td>Pull a wand close</td><td>Use your gadget</td></tr>
+      </table>
+      <div class="row"><span>Camera</span>
+        <div class="seg" id="camSeg"><button data-c="0">Off</button><button data-c="1">Wands</button></div>
+      </div>
+      <div class="row"><span>Which camera</span>
+        <div class="seg" id="camFaceSeg"><button data-f="user">Front</button><button data-f="environment">Back</button></div>
+      </div>
+      <div class="row"><span>Wand colors</span>
+        <span class="swatch" id="wandSw0"></span><span class="swatch" id="wandSw1"></span>
+        <button id="wandSet" class="pill">Set colors</button>
+        <button id="wandReset" class="pill">Green + pink</button>
+      </div>
+      <p id="camNote" class="small" hidden></p>
+    </details>
+    <p class="small foot"><button id="resetBtn" class="link">Start over (erase money and gadgets)</button></p>
+  </div>
+</div>
+
+<div id="lab" hidden>
+  <div class="card">
+    <h2>🧪 The Lab</h2>
+    <p class="small">You have <b id="labCash">$0</b>. Buy a gadget, then pick it to carry it into the city. Finish its tests for bonus pay. Your arm hooks always come with you.</p>
+    <div id="labList"></div>
+    <button id="labClose" class="big">Back to the city</button>
+  </div>
+</div>
+
+<button id="update" type="button" hidden>A new version is ready. Tap to update.</button>
+<canvas id="wandCalView" width="320" height="240" hidden></canvas>
+
+<script>const APP_VERSION = 'gadget-1'; // the Pages deploy adds the commit to this</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="js/core.js"></script>
+<script src="js/city.js"></script>
+<script src="js/people.js"></script>
+<script src="js/crooks.js"></script>
+<script src="js/player.js"></script>
+<script src="js/gadgets.js"></script>
+<script src="js/input.js"></script>
+<script src="js/wands.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
