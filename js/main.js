@@ -25,6 +25,7 @@ scene.add(sky);
 
 makePeople();
 makePlayer();
+makeDragon();
 setView(firstPerson);
 camYaw = 0; camPitch = 0.12;
 updateCashUI(); updateGadgetUI();
@@ -45,10 +46,12 @@ function frame(now) {
   pollInput(dt);
   if (state === 'play') {
     updateGadgets(dt);
+    updateDragon(dt);
     updatePlayer(dt);
     updateCrooks(dt);
   } else if (state === 'menu') {
     camYaw += dt * 0.06; // slow look around the city behind the menu
+    if (dragon.state === 'roam') updateDragon(dt);
     player.mesh.updateMatrixWorld(true);
   }
   if (state !== 'lab') updatePeople(dt);

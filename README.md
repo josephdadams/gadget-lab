@@ -14,6 +14,10 @@ Play from behind your tester (3rd person) or out of their goggles (1st person), 
 
 Your money, gadgets and finished tests are saved on the device.
 
+### Your dragon
+
+A giant red dragon flies around the buildings. Press the **🐉** button (`R` on a keyboard, D-pad up on a controller) and it swoops down to pick you up. While you ride it, steer where you look, fly faster with forward, flap up with jump, and **breathe fire** with the gadget button to toast crooks. Swoop low over a crook to snatch them. Press 🐉 again to hop off, or shoot a hook to jump off and swing away.
+
 ### Gadgets
 
 - 🪝 **Grapple Hooks** (free, always on your arms): shoot a hook, swing, let go, fly. Hook a crook to yank them in.
@@ -34,6 +38,8 @@ Your money, gadgets and finished tests are saved on the device.
 | `Shift` | Reel your hooks in |
 | `F` | Use your gadget (hold for Rocket Boots) |
 | `V` | Switch between 1st and 3rd person |
+| `R` | Call your dragon. Press again to hop off |
+| Riding the dragon | Mouse or `A` / `D` steers, `W` goes faster, `Space` flaps up, `F` breathes fire |
 | `1`–`6`, mouse wheel | Switch gadget |
 | `Tab` | The Lab |
 | `Esc` | Menu |
@@ -50,6 +56,8 @@ Your money, gadgets and finished tests are saved on the device.
 | `LB` or `B` | Reel your hooks in |
 | `Y`, D-pad | Switch gadget |
 | Right stick click | Switch between 1st and 3rd person |
+| D-pad up, left stick click | Call your dragon. Press again to hop off |
+| Riding the dragon | Sticks steer, `A` flaps up, `RB` or `X` breathes fire |
 | `Start` | The Lab |
 | `Back` | Menu |
 
@@ -62,6 +70,7 @@ On menus, the D-pad or left stick moves between buttons, `A` picks, and `B` goes
 - Or hold a hook button to hang on and let go to release.
 - The other buttons jump, use your gadget, and reel in.
 - The **👁** chip at the top switches between 1st and 3rd person.
+- The **🐉** button calls your dragon (tap again to hop off). While riding, the gadget button breathes fire.
 
 ### Camera wands
 

@@ -48,6 +48,7 @@ function updateGadgets(dt) {
   gadgetCd -= dt;
   const P = player, g = save.equipped;
   P.thrusting = false;
+  if (dragon.state === 'ride') { updateNets(dt); return; } // the gadget button breathes fire instead (dragon.js)
   if (g === 'boots' && inp.gadgetHeld && P.fuel > 0) {
     P.thrusting = true;
     P.fuel = Math.max(0, P.fuel - dt / 3.5);

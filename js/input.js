@@ -34,6 +34,7 @@ addEventListener('keydown', e => {
     else if (k === 'KeyE') holdHook(1, 'ke', true);
     else if (k === 'KeyF') inp.gPressQ = true;
     else if (k === 'KeyV') toggleView();
+    else if (k === 'KeyR') callDragon();
     else if (/^Digit[1-6]$/.test(k)) selectGadget(+k.slice(5) - 1);
     else if (k === 'Tab') openLab();
     else if (k === 'Escape') openMenu();
@@ -139,6 +140,7 @@ for (const [id, side] of [['tHookL', 0], ['tHookR', 1]]) {
 }
 touchButton('tJump', () => { inp.jumpQ = true; });
 touchButton('tGadget', () => { inp.gPressQ = true; held.touchGadget = true; }, () => { held.touchGadget = false; });
+touchButton('tDragon', () => callDragon());
 touchButton('tReel', () => { held.touchReel = true; }, () => { held.touchReel = false; });
 
 // ---- Controllers ----
@@ -168,6 +170,7 @@ function pollPads(dt, acc) {
       if (pressed(3) || pressed(15)) cycleGadget(1);
       if (pressed(14)) cycleGadget(-1);
       if (pressed(11)) toggleView();
+      if (pressed(10) || pressed(12)) callDragon();
       if (pressed(9)) openLab();
       if (pressed(8)) openMenu();
     } else {

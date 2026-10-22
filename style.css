@@ -80,6 +80,7 @@ body.touch #cross, body.touch .ret { opacity: .75; }
 #tHookR { right: calc(24px + env(safe-area-inset-right)); bottom: calc(110px + env(safe-area-inset-bottom)); width: 100px; height: 100px; border-color: var(--lime); }
 #tJump { right: calc(140px + env(safe-area-inset-right)); bottom: calc(30px + env(safe-area-inset-bottom)); }
 #tGadget { right: calc(24px + env(safe-area-inset-right)); bottom: calc(225px + env(safe-area-inset-bottom)); border-color: var(--orange); }
+#tDragon { left: calc(24px + env(safe-area-inset-left)); bottom: calc(300px + env(safe-area-inset-bottom)); width: 66px; height: 66px; font-size: 26px; border-color: #ff5a36; }
 #tReel { right: calc(140px + env(safe-area-inset-right)); bottom: calc(130px + env(safe-area-inset-bottom)); width: 66px; height: 66px; font-size: 22px; }
 
 #update { position: fixed; left: 50%; top: calc(12px + env(safe-area-inset-top)); transform: translateX(-50%); z-index: 40; font-family: var(--display);

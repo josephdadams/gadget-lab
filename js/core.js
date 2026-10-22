@@ -121,6 +121,9 @@ const SFX = {
   bonk: () => tone(180, 90, 0.15, 'square', 0.08),
   pass: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, f, 0.15, 'triangle', 0.07, i * 0.08)),
   click: () => tone(700, 700, 0.04, 'square', 0.03),
+  roar: () => { tone(170, 55, 1.0, 'sawtooth', 0.12); tone(115, 45, 1.0, 'square', 0.05); noise(0.9, 0.2, 350); },
+  flap: () => noise(0.3, 0.12, 200),
+  fire: () => { noise(0.16, 0.13, 450); noise(0.16, 0.06, 1500); },
 };
 
 // ---- Small shared effects: things that grow, fade and go away on their own ----

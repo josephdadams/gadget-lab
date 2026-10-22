@@ -3,8 +3,8 @@
 const crooks = [];
 const LOOT = ['a purse', 'a giant pizza', 'a gold trophy', 'a bag of money', 'a birthday cake', 'a robot puppy', "the mayor's hat",
   'a crate of bananas', 'a skateboard', 'a box of donuts', 'a museum dinosaur egg', 'a puppy-sized diamond'];
-const PAY = { tackle: 50, swing: 100, hooks: 120, fling: 150, net: 150, freeze: 150, portal: 200, boots: 150 };
-const HOW = { tackle: 'Tackled!', swing: 'Swing tackle!', hooks: 'Hooked!', fling: 'Flung!', net: 'Netted!', freeze: 'Iced!', portal: 'Portaled!', boots: 'Rocket tackle!' };
+const PAY = { tackle: 50, swing: 100, hooks: 120, fling: 150, net: 150, freeze: 150, portal: 200, boots: 150, fire: 150, dragon: 200 };
+const HOW = { tackle: 'Tackled!', swing: 'Swing tackle!', hooks: 'Hooked!', fling: 'Flung!', net: 'Netted!', freeze: 'Iced!', portal: 'Portaled!', boots: 'Rocket tackle!', fire: 'Toasted!', dragon: 'Dragon snatch!' };
 const latX = a => bx(a) + CELL / 2 - 10; // the sidewalk line running past each block
 let crimeT = 3;
 let crookMats = null;

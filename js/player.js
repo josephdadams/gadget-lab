@@ -88,6 +88,7 @@ function findHookTarget(o, d0, out) {
 
 // dir/origin given = aimed at a spot on the screen (touch or wand); otherwise the crosshair aim for that arm
 function fireHook(side, dir, origin) {
+  if (dragon.state === 'ride') hopOffDragon(); // jump off the dragon and swing away
   const h = player.hooks[side];
   h.state = 'none'; h.crook = null;
   const hand = handPos(side, pv.a);
@@ -110,6 +111,7 @@ const angDiff = (a, b) => { let d = a - b; while (d > Math.PI) d -= Math.PI * 2;
 function updatePlayer(dt) {
   const P = player, hooks = P.hooks;
   P.portalCd -= dt; P.bonkCd -= dt;
+  if (dragon.state === 'ride') { seatRider(); P.onGround = false; animatePlayer(dt, P.vel.length(), false); return; }
   P.mesh.updateMatrixWorld(true);
   const f = pv.f.set(-Math.sin(camYaw), 0, -Math.cos(camYaw)), r = pv.r.set(Math.cos(camYaw), 0, -Math.sin(camYaw));
   const wish = pv.w.set(0, 0, 0).addScaledVector(f, inp.mz).addScaledVector(r, inp.mx);
@@ -227,7 +229,9 @@ function updatePlayer(dt) {
 function animatePlayer(dt, sp, ground) {
   const P = player, g = P.mesh;
   const hsp = Math.hypot(P.vel.x, P.vel.z);
+  const riding = dragon.state === 'ride';
   if (firstPerson) P.bodyYaw = camYaw + Math.PI; // your shoulders stay where you're looking
+  else if (riding) P.bodyYaw = dragon.yaw;
   else if (hsp > 1.5) P.bodyYaw += angDiff(Math.atan2(P.vel.x, P.vel.z), P.bodyYaw) * Math.min(1, dt * 10);
   else if (P.hooks.some(h => h.state !== 'none')) P.bodyYaw += angDiff(camYaw + Math.PI, P.bodyYaw) * Math.min(1, dt * 8);
   g.position.copy(P.pos);
@@ -236,11 +240,13 @@ function animatePlayer(dt, sp, ground) {
   P.phase += dt * (ground ? hsp * 1.1 : 4);
   const leg = ground ? Math.sin(P.phase) * Math.min(1, hsp / 6) * 0.9 : 0.5;
   P.legs[0].rotation.x = leg; P.legs[1].rotation.x = ground ? -leg : -0.2;
+  if (riding) P.legs[0].rotation.x = P.legs[1].rotation.x = -1.35; // sitting on the saddle
   g.updateMatrixWorld(true);
   for (let s = 0; s < 2; s++) {
     const arm = P.arms[s], h = P.hooks[s];
     if (h.state === 'fly' || h.state === 'on') arm.lookAt(h.anchor);
     else if (h.state === 'miss') arm.lookAt(pv.a.copy(arm.getWorldPosition(pv.b)).add(h.dir));
+    else if (riding) arm.rotation.set(0.75, 0, s ? 0.25 : -0.25); // hanging on to the saddle handle
     else if (ground) arm.rotation.set(Math.PI / 2 - Math.sin(P.phase) * (s ? -0.6 : 0.6) * Math.min(1, hsp / 6), 0, 0);
     else arm.rotation.set(Math.PI / 2 - 1.3, 0, s ? -0.5 : 0.5);
   }
@@ -276,7 +282,7 @@ function updateCamera(dt) {
   if (firstPerson) {
     // looking out of your goggles; the camera never turns on its own here
     const F = dirFrom(camYaw, camPitch, camT.f);
-    camera.position.copy(P.pos); camera.position.y += 1.82;
+    camera.position.copy(P.pos); camera.position.y += dragon.state === 'ride' ? 5.2 : 1.82; // up over the dragon's neck while riding
     camera.lookAt(pv.a.copy(camera.position).add(F));
     return;
   }
@@ -285,7 +291,9 @@ function updateCamera(dt) {
     camYaw += angDiff(Math.atan2(-P.vel.x, -P.vel.z), camYaw) * Math.min(1, dt * 0.9);
   const F = dirFrom(camYaw, camPitch, camT.f);
   const target = camT.t.copy(P.pos); target.y += 1.8;
-  let dist = 6.5 + Math.min(sp, 60) * 0.05;
+  const riding = dragon.state === 'ride';
+  if (riding) target.y += 4.5;
+  let dist = riding ? 19 + Math.min(sp, 60) * 0.08 : 6.5 + Math.min(sp, 60) * 0.05; // back far enough to see the whole dragon
   const back = camT.b.copy(F).negate(); back.y += 0.18; back.normalize();
   const hit = rayCity(target, back, dist + 0.6, true);
   if (hit) dist = Math.max(1.2, hit.t - 0.6);

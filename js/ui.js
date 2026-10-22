@@ -34,6 +34,10 @@ function updateCashUI() {
 
 // ---- gadgets ----
 function updateGadgetUI() {
+  if (dragon.state === 'ride') {
+    $('gIcon').textContent = $('tGIcon').textContent = '🔥'; $('gName').textContent = 'Dragon fire'; $('fuel').hidden = true;
+    return;
+  }
   const g = gadgetById(save.equipped) || GADGETS[0];
   $('gIcon').textContent = g.icon; $('tGIcon').textContent = g.icon;
   $('gName').textContent = g.id === 'hooks' ? 'Hooks (gadget = reel in)' : g.name;
@@ -124,6 +128,7 @@ $('menuLabBtn').addEventListener('click', () => { audioOn(); openLab(); });
 $('labClose').addEventListener('click', closeLab);
 $('labBtn').addEventListener('click', openLab);
 $('menuBtn').addEventListener('click', openMenu);
+$('dragonBtn').addEventListener('click', callDragon);
 $('resetBtn').addEventListener('click', () => {
   if (!confirm('Erase all your money, gadgets and tests and start over?')) return;
   save = SAVE_NEW(); persist(); updateCashUI(); updateGadgetUI();
@@ -135,6 +140,7 @@ const TIPS = () => [
   'Shoot a hook, swing, let go at the bottom of the swing, and fly!',
   'Crooks have a red ! over them. Catch them for cash: run into them, or use a gadget for bigger pay',
   'Spend your cash in the 🧪 Lab on new gadgets. Every gadget has tests that pay extra',
+  isTouch() ? 'Tap 🐉 to call your dragon. It swoops down to pick you up!' : 'Press R (or 🐉) to call your dragon. It swoops down to pick you up!',
 ];
 function nextTip() {
   const t = TIPS(), h = $('hint');
@@ -232,6 +238,14 @@ function drawMinimap() {
     if (L > 88) { x *= 88 / L; y *= 88 / L; }
     g.fillStyle = '#ff3b3b'; g.strokeStyle = '#fff'; g.lineWidth = 2;
     g.beginPath(); g.arc(100 + x, 100 + y, 7, 0, 7); g.fill(); g.stroke();
+  }
+  // your dragon
+  if (dragon.state !== 'ride') {
+    const dx = (dragon.pos.x - px) * s, dz = (dragon.pos.z - pz) * s;
+    let x = dx * cy - dz * sy, y = dx * sy + dz * cy;
+    const L = Math.hypot(x, y);
+    if (L > 86) { x *= 86 / L; y *= 86 / L; }
+    g.font = '22px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('🐉', 100 + x, 100 + y);
   }
   // you, always in the middle pointing the way the camera looks
   g.fillStyle = '#9be15d'; g.strokeStyle = '#14213d'; g.lineWidth = 2;
