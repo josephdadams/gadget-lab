@@ -18,6 +18,12 @@ Your money, gadgets and finished tests are saved on the device.
 
 A giant red dragon flies around the buildings. Press the **🐉** button (`R` on a keyboard, D-pad up on a controller) and it swoops down to pick you up. While you ride it, steer where you look, fly faster with forward, flap up with jump, and **breathe fire** with the gadget button to toast crooks. Swoop low over a crook to snatch them. Press 🐉 again to hop off, or shoot a hook to jump off and swing away.
 
+### Monster mode
+
+Press **🦖** (`G` on a keyboard, D-pad down on a controller, or **Monster mode** on the menu) to turn into **ZILLA**, a giant lizard taller than almost every building. Walk through buildings to knock them down, punch them with the hook buttons, melt them with **atomic breath** (the gadget button), stomp with jump, and spin your tail with reel.
+
+Pick a fight with **🦍 MEGA APE** (`1`, D-pad left), who leaps across the city and punches, or **🐲 THREE-HEADED KING** (`2`, D-pad right), who flies, swoops and shoots lightning. Win for a big cash prize. Press 🦖 again to change back, and the Lab's robots rebuild the city.
+
 ### Gadgets
 
 - 🪝 **Grapple Hooks** (free, always on your arms): shoot a hook, swing, let go, fly. Hook a crook to yank them in.
@@ -40,6 +46,8 @@ A giant red dragon flies around the buildings. Press the **🐉** button (`R` on
 | `V` | Switch between 1st and 3rd person |
 | `R` | Call your dragon. Press again to hop off |
 | Riding the dragon | Mouse or `A` / `D` steers, `W` goes faster, `Space` flaps up, `F` breathes fire |
+| `G` | Monster mode on and off |
+| As the monster | Clicks or `Q` / `E` punch, `F` atomic breath, `Space` stomp jump, `Shift` tail spin, `1` fights the ape, `2` fights the three-headed dragon |
 | `1`–`6`, mouse wheel | Switch gadget |
 | `Tab` | The Lab |
 | `Esc` | Menu |
@@ -58,6 +66,8 @@ A giant red dragon flies around the buildings. Press the **🐉** button (`R` on
 | Right stick click | Switch between 1st and 3rd person |
 | D-pad up, left stick click | Call your dragon. Press again to hop off |
 | Riding the dragon | Sticks steer, `A` flaps up, `RB` or `X` breathes fire |
+| D-pad down | Monster mode on and off |
+| As the monster | `LT` / `RT` punch, `RB` or `X` atomic breath, `A` stomp jump, `LB` or `B` tail spin, D-pad left fights the ape, D-pad right fights the three-headed dragon |
 | `Start` | The Lab |
 | `Back` | Menu |
 
@@ -71,6 +81,7 @@ On menus, the D-pad or left stick moves between buttons, `A` picks, and `B` goes
 - The other buttons jump, use your gadget, and reel in.
 - The **👁** chip at the top switches between 1st and 3rd person.
 - The **🐉** button calls your dragon (tap again to hop off). While riding, the gadget button breathes fire.
+- The **🦖** button turns you into a giant monster. The hook buttons punch, 🔵 breathes, ⤴ stomps, 🌀 spins your tail, and 🦍 or 🐲 picks a fight.
 
 ### Camera wands
 

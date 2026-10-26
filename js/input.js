@@ -35,6 +35,8 @@ addEventListener('keydown', e => {
     else if (k === 'KeyF') inp.gPressQ = true;
     else if (k === 'KeyV') toggleView();
     else if (k === 'KeyR') callDragon();
+    else if (k === 'KeyG') toggleKaiju();
+    else if (kaiju.on && (k === 'Digit1' || k === 'Digit2')) summonFoe(k === 'Digit1' ? 'ape' : 'hydra');
     else if (/^Digit[1-6]$/.test(k)) selectGadget(+k.slice(5) - 1);
     else if (k === 'Tab') openLab();
     else if (k === 'Escape') openMenu();
@@ -71,7 +73,7 @@ addEventListener('mousemove', e => {
 canvas.addEventListener('contextmenu', e => e.preventDefault());
 let wheelT = 0;
 addEventListener('wheel', e => {
-  if (state !== 'play' || performance.now() - wheelT < 180) return;
+  if (state !== 'play' || kaiju.on || performance.now() - wheelT < 180) return;
   wheelT = performance.now(); cycleGadget(e.deltaY > 0 ? 1 : -1);
 }, { passive: true });
 
@@ -167,8 +169,9 @@ function pollPads(dt, acc) {
       if (pressed(5) || pressed(2)) inp.gPressQ = true;
       if (cur[5] || cur[2]) held.padGadget = true;
       if (cur[4] || cur[1]) held.padReel = true;
-      if (pressed(3) || pressed(15)) cycleGadget(1);
-      if (pressed(14)) cycleGadget(-1);
+      if (pressed(13)) toggleKaiju();
+      if (kaiju.on) { if (pressed(14)) summonFoe('ape'); if (pressed(15)) summonFoe('hydra'); }
+      else { if (pressed(3) || pressed(15)) cycleGadget(1); if (pressed(14)) cycleGadget(-1); }
       if (pressed(11)) toggleView();
       if (pressed(10) || pressed(12)) callDragon();
       if (pressed(9)) openLab();

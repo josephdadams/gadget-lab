@@ -26,6 +26,7 @@ scene.add(sky);
 makePeople();
 makePlayer();
 makeDragon();
+makeKaiju();
 setView(firstPerson);
 camYaw = 0; camPitch = 0.12;
 updateCashUI(); updateGadgetUI();
@@ -44,7 +45,10 @@ function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000);
   last = now;
   pollInput(dt);
-  if (state === 'play') {
+  if (state === 'play' && kaiju.on) {
+    updateKaiju(dt);
+    if (dragon.state === 'roam') updateDragon(dt);
+  } else if (state === 'play') {
     updateGadgets(dt);
     updateDragon(dt);
     updatePlayer(dt);
@@ -54,7 +58,7 @@ function frame(now) {
     if (dragon.state === 'roam') updateDragon(dt);
     player.mesh.updateMatrixWorld(true);
   }
-  if (state !== 'lab') updatePeople(dt);
+  if (state !== 'lab') { updatePeople(dt); updateSmash(dt); }
   updateFx(dt);
   hqSpinner.rotation.y += dt * 0.8; hqSpinner.rotation.x += dt * 0.3;
   updateCamera(dt);

@@ -34,6 +34,10 @@ function updateCashUI() {
 
 // ---- gadgets ----
 function updateGadgetUI() {
+  if (kaiju.on) {
+    $('gIcon').textContent = $('tGIcon').textContent = '🔵'; $('gName').textContent = 'Atomic breath'; $('fuel').hidden = false;
+    return;
+  }
   if (dragon.state === 'ride') {
     $('gIcon').textContent = $('tGIcon').textContent = '🔥'; $('gName').textContent = 'Dragon fire'; $('fuel').hidden = true;
     return;
@@ -50,6 +54,7 @@ function selectGadget(i) {
   save.equipped = g.id; persist(); updateGadgetUI(); SFX.click();
 }
 function cycleGadget(dir) {
+  if (kaiju.on) return;
   const owned = GADGETS.filter(g => save.owned.includes(g.id));
   const i = owned.findIndex(g => g.id === save.equipped);
   save.equipped = owned[(i + dir + owned.length) % owned.length].id;
@@ -129,6 +134,10 @@ $('labClose').addEventListener('click', closeLab);
 $('labBtn').addEventListener('click', openLab);
 $('menuBtn').addEventListener('click', openMenu);
 $('dragonBtn').addEventListener('click', callDragon);
+$('monsterBtn').addEventListener('click', toggleKaiju);
+$('apeBtn').addEventListener('click', () => summonFoe('ape'));
+$('hydraBtn').addEventListener('click', () => summonFoe('hydra'));
+$('menuMonsterBtn').addEventListener('click', () => { startPlay(); setKaiju(true); });
 $('resetBtn').addEventListener('click', () => {
   if (!confirm('Erase all your money, gadgets and tests and start over?')) return;
   save = SAVE_NEW(); persist(); updateCashUI(); updateGadgetUI();
@@ -141,6 +150,7 @@ const TIPS = () => [
   'Crooks have a red ! over them. Catch them for cash: run into them, or use a gadget for bigger pay',
   'Spend your cash in the 🧪 Lab on new gadgets. Every gadget has tests that pay extra',
   isTouch() ? 'Tap 🐉 to call your dragon. It swoops down to pick you up!' : 'Press R (or 🐉) to call your dragon. It swoops down to pick you up!',
+  isTouch() ? 'Tap 🦖 to turn into a giant monster and smash the city!' : 'Press G (or 🦖) to turn into a giant monster and smash the city!',
 ];
 function nextTip() {
   const t = TIPS(), h = $('hint');
@@ -172,10 +182,11 @@ function updateHud(dt) {
   if (alertT > 0 && (alertT -= dt) <= 0) $('alert').hidden = true;
   if (state !== 'play') return;
   if (tipsT > 0 && (tipsT -= dt) <= 0) nextTip();
-  if (save.equipped === 'boots') $('fuel').firstChild.style.width = (player.fuel * 100).toFixed(0) + '%';
+  if (kaiju.on) $('fuel').firstChild.style.width = (kaiju.energy * 100).toFixed(0) + '%';
+  else if (save.equipped === 'boots') $('fuel').firstChild.style.width = (player.fuel * 100).toFixed(0) + '%';
 
   // aim rings: where each hook would land right now
-  if (hudFrame % 2 === 0) for (let s = 0; s < 2; s++) {
+  if (hudFrame % 2 === 0 && !kaiju.on) for (let s = 0; s < 2; s++) {
     const el = $(s ? 'retR' : 'retL'), h = player.hooks[s];
     if (h.state === 'on' || h.state === 'fly') { const p = toScreen(h.anchor); el.style.transform = `translate(${p.x}px, ${p.y}px)`; el.className = 'ret' + (h.crook ? ' crook' : ''); el.style.display = p.on ? '' : 'none'; continue; }
     const o = handPos(s, uv.b), d = hookAimDir(s, new V());
@@ -188,6 +199,7 @@ function updateHud(dt) {
 
   // arrows at the screen edge pointing to crooks that are off screen
   const box = $('arrows'), live = crooks.filter(c => c.state !== 'caught');
+  if (foe.on && foe.state !== 'down') live.push(foe);
   while (box.children.length < live.length) { const a = document.createElement('div'); a.className = 'arr'; a.innerHTML = '<i></i><span></span>'; box.appendChild(a); }
   [...box.children].forEach((el, i) => {
     const c = live[i];
@@ -238,6 +250,14 @@ function drawMinimap() {
     if (L > 88) { x *= 88 / L; y *= 88 / L; }
     g.fillStyle = '#ff3b3b'; g.strokeStyle = '#fff'; g.lineWidth = 2;
     g.beginPath(); g.arc(100 + x, 100 + y, 7, 0, 7); g.fill(); g.stroke();
+  }
+  // the monster you're fighting
+  if (foe.on) {
+    const dx = (foe.pos.x - px) * s, dz = (foe.pos.z - pz) * s;
+    let x = dx * cy - dz * sy, y = dx * sy + dz * cy;
+    const L = Math.hypot(x, y);
+    if (L > 86) { x *= 86 / L; y *= 86 / L; }
+    g.font = '26px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(FOES[foe.kind].icon, 100 + x, 100 + y);
   }
   // your dragon
   if (dragon.state !== 'ride') {

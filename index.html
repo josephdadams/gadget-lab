@@ -28,9 +28,16 @@
   <canvas id="minimap" width="200" height="200"></canvas>
   <div id="topRight">
     <button id="viewBtn" class="chip" aria-label="Switch between 1st and 3rd person">👁 3rd</button>
-    <button id="dragonBtn" class="chip" aria-label="Call your dragon">🐉</button>
+    <button id="dragonBtn" class="chip mHide" aria-label="Call your dragon">🐉</button>
+    <button id="apeBtn" class="chip mOnly" aria-label="Fight the giant ape">🦍</button>
+    <button id="hydraBtn" class="chip mOnly" aria-label="Fight the three-headed dragon">🐲</button>
+    <button id="monsterBtn" class="chip" aria-label="Monster mode">🦖</button>
     <button id="labBtn" class="chip">🧪 Lab</button>
     <button id="menuBtn" class="chip" aria-label="Menu">☰</button>
+  </div>
+  <div id="fight" hidden>
+    <div class="hp"><span>🦖 ZILLA</span><div class="bar"><i id="hpMe"></i></div></div>
+    <div class="hp foe" id="foeRow" hidden><span id="foeName"></span><div class="bar"><i id="hpFoe"></i></div></div>
   </div>
   <div id="alert" hidden></div>
   <div id="toasts"></div>
@@ -66,6 +73,7 @@
     <p>You're the Lab's gadget tester. Swing through the city on your arm hooks, try new gadgets on real crooks, and get paid for every test.</p>
     <button id="playBtn" class="big">Play</button>
     <button id="menuLabBtn" class="big alt">🧪 The Lab</button>
+    <button id="menuMonsterBtn" class="big monster">🦖 Monster mode</button>
     <div class="row"><span>View</span>
       <div class="seg" id="viewSeg"><button data-v="3">3rd person</button><button data-v="1">1st person</button></div>
     </div>
@@ -83,6 +91,8 @@
         <tr><td>V</td><td>Switch between 1st and 3rd person</td></tr>
         <tr><td>R</td><td>Call your dragon. Press again to hop off</td></tr>
         <tr><td>Riding the dragon</td><td>Mouse or A / D steers, W goes faster, Space flaps up, F breathes fire</td></tr>
+        <tr><td>G</td><td>Monster mode on and off</td></tr>
+        <tr><td>As the monster</td><td>Clicks or Q / E punch, F atomic breath, Space stomp jump, Shift tail spin, 1 fights the ape, 2 fights the three-headed dragon</td></tr>
         <tr><td>1 – 6, mouse wheel</td><td>Switch gadget</td></tr>
         <tr><td>Tab</td><td>The Lab</td></tr>
         <tr><td>Esc</td><td>Menu</td></tr>
@@ -101,6 +111,8 @@
         <tr><td>Right stick click</td><td>Switch between 1st and 3rd person</td></tr>
         <tr><td>D-pad up, left stick click</td><td>Call your dragon. Press again to hop off</td></tr>
         <tr><td>Riding the dragon</td><td>Sticks steer, A flaps up, RB or X breathes fire</td></tr>
+        <tr><td>D-pad down</td><td>Monster mode on and off</td></tr>
+        <tr><td>As the monster</td><td>LT / RT punch, RB or X atomic breath, A stomp jump, LB or B tail spin, D-pad left fights the ape, D-pad right fights the three-headed dragon</td></tr>
         <tr><td>Start</td><td>The Lab</td></tr>
         <tr><td>Back</td><td>Menu</td></tr>
       </table>
@@ -115,6 +127,7 @@
         <tr><td>Gadget</td><td>Use your gadget</td></tr>
         <tr><td>👁 button</td><td>Switch between 1st and 3rd person</td></tr>
         <tr><td>🐉 button</td><td>Call your dragon. Tap again to hop off. While riding, the gadget button breathes fire</td></tr>
+        <tr><td>🦖 button</td><td>Monster mode on and off. The hook buttons punch, 🔵 breathes, ⤴ stomps, 🌀 spins your tail, 🦍 and 🐲 pick a fight</td></tr>
       </table>
     </details>
     <details id="camDetails">
@@ -165,6 +178,7 @@
 <script src="js/player.js"></script>
 <script src="js/gadgets.js"></script>
 <script src="js/dragon.js"></script>
+<script src="js/monster.js"></script>
 <script src="js/input.js"></script>
 <script src="js/wands.js"></script>
 <script src="js/ui.js"></script>

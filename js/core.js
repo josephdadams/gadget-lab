@@ -124,6 +124,18 @@ const SFX = {
   roar: () => { tone(170, 55, 1.0, 'sawtooth', 0.12); tone(115, 45, 1.0, 'square', 0.05); noise(0.9, 0.2, 350); },
   flap: () => noise(0.3, 0.12, 200),
   fire: () => { noise(0.16, 0.13, 450); noise(0.16, 0.06, 1500); },
+  // monster mode
+  stomp: () => { tone(95, 28, 0.7, 'sine', 0.4); noise(0.5, 0.25, 140); },
+  step: () => { tone(80, 35, 0.3, 'sine', 0.22); noise(0.2, 0.08, 120); },
+  crash: () => { noise(1.1, 0.16, 260); noise(0.6, 0.08, 1100); tone(70, 32, 0.9, 'sine', 0.16); },
+  punch: () => { tone(170, 55, 0.2, 'square', 0.1); noise(0.22, 0.2, 500); },
+  beam: () => { tone(820, 1150, 0.13, 'sawtooth', 0.035); noise(0.13, 0.07, 3200); },
+  zap: () => { noise(0.14, 0.12, 4500); tone(1900, 300, 0.14, 'square', 0.035); },
+  bigRoar: () => { tone(240, 70, 1.7, 'sawtooth', 0.13); tone(360, 95, 1.7, 'square', 0.04); noise(1.5, 0.2, 520); },
+  apeRoar: () => { tone(150, 60, 1.3, 'sawtooth', 0.13); tone(95, 50, 1.3, 'square', 0.05); noise(1.1, 0.22, 300); },
+  hydraCry: () => [0, 0.14, 0.28].forEach((d, i) => tone(760 - i * 90, 240, 0.55, 'sawtooth', 0.055, d)),
+  ouch: () => { tone(300, 120, 0.35, 'sawtooth', 0.09); noise(0.25, 0.15, 700); },
+  win: () => [523, 659, 784, 1047, 784, 1047].forEach((f, i) => tone(f, f, 0.22, 'triangle', 0.08, i * 0.12)),
 };
 
 // ---- Small shared effects: things that grow, fade and go away on their own ----

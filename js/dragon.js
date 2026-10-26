@@ -98,6 +98,7 @@ function makeDragon() {
 // Press the dragon button: it flies over to pick you up. Press it again while riding to hop off.
 function callDragon() {
   if (state !== 'play') return;
+  if (kaiju.on) { toast('🐉 Your dragon is too scared of monsters to come down!'); return; }
   if (dragon.state === 'ride') { hopOffDragon(); return; }
   if (dragon.state === 'come') { toast('🐉 Your dragon is on the way!'); return; }
   dragon.state = 'come'; dragon.comeT = 0;

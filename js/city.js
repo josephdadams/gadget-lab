@@ -14,6 +14,11 @@ const boxes = [];             // [x0, y0, z0, x1, y1, z1]
 const boxCols = [];
 let BN = 0, bmin, bmax;       // flat copies of boxes for fast loops: bmin[k*3 + 0..2]
 let hqSpinner = null, sunDir;
+let cityMesh = null, roofMesh = null;
+let bmin0, bmax0;             // the city as built, so it can be put back after monster mode
+let baseOf, roofOf, boxState; // the box a tower top stands on, each building's roof bit, 0 standing / 1 falling / 2 rubble
+const stackOn = [];           // stackOn[k] = tower tops standing on building k
+const roofMats = [];
 
 const PALETTE = ['#c9b79c', '#a7a9ac', '#9a7560', '#b55d4c', '#6f8fa8', '#d8d2c4', '#7a8b8f', '#9db4c0', '#c48b6a',
   '#5d7183', '#e0c9a6', '#88a39a', '#b8a0c8', '#d9a066', '#7f9cb5'];
@@ -65,6 +70,12 @@ function genCity() {
   BN = boxes.length;
   bmin = new Float32Array(BN * 3); bmax = new Float32Array(BN * 3);
   boxes.forEach((b, q) => { bmin.set(b.slice(0, 3), q * 3); bmax.set(b.slice(3), q * 3); });
+  bmin0 = bmin.slice(); bmax0 = bmax.slice();
+  baseOf = new Int16Array(BN).fill(-1); roofOf = new Int16Array(BN).fill(-1); boxState = new Uint8Array(BN);
+  for (let k = 0; k < BN; k++) stackOn.push([]);
+  for (const b of blocks) for (const a of b.list) for (const t of b.list) {
+    if (t !== a && bmin[t * 3 + 1] > 0.5 && Math.abs(bmin[t * 3 + 1] - bmax[a * 3 + 1]) < 0.01) { stackOn[a].push(t); baseOf[t] = a; }
+  }
 }
 
 const buildingVS = `
@@ -164,6 +175,7 @@ function buildCity() {
   });
   mesh.frustumCulled = false;
   scene.add(mesh);
+  cityMesh = mesh;
 
   // ground
   const gt = groundTexture(), span = N + 6;
@@ -205,14 +217,16 @@ function buildCity() {
   const roofGeo = new THREE.BoxGeometry(1, 1, 1); roofGeo.translate(0, 0.5, 0);
   const roofBits = new THREE.InstancedMesh(roofGeo, new THREE.MeshLambertMaterial({ color: '#9aa0a6' }), BN);
   let nr = 0;
-  boxes.forEach(b => {
+  boxes.forEach((b, k) => {
     if (b[4] < 15 || srand() < 0.3) return;
     const w = 2 + srand() * 3;
     m4.compose(new V(lerp(b[0] + w, b[3] - w, srand()), b[4], lerp(b[2] + w, b[5] - w, srand())), q.identity(), new V(w, 1.2 + srand() * 2, w * 0.8));
+    roofOf[k] = nr; roofMats.push(m4.clone());
     roofBits.setMatrixAt(nr++, m4);
   });
   roofBits.count = nr;
   scene.add(roofBits);
+  roofMesh = roofBits;
 
   // the Lab: orange stripes, a big sign facing the plaza, and a spinning gadget on the roof
   const hx = bx(HQ.i), hz = bx(HQ.j), stripe = new THREE.MeshLambertMaterial({ color: '#ff8a2a' });
@@ -284,4 +298,163 @@ function rayCity(o, d, maxT, skipGround) {
   rayHit.n.set(0, 0, 0);
   if (axis === 0) rayHit.n.x = d.x > 0 ? -1 : 1; else if (axis === 1) rayHit.n.y = d.y > 0 ? -1 : 1; else rayHit.n.z = d.z > 0 ? -1 : 1;
   return rayHit;
+}
+
+// ---- Smashing (monster mode) ----
+// A building can be chopped (the top gets knocked off), melted (the top burns away), or collapse (it sinks into a pile of
+// rubble in a cloud of dust). Tower tops ride down with the building under them. The Lab itself is monster-proof.
+const RUBBLE = 1.4;
+const collapsing = [];
+const sm = { m: new THREE.Matrix4(), q: new THREE.Quaternion(), p: new V(), s: new V(), c: new THREE.Color(), d: new V(), rubble: new THREE.Color('#6d675e') };
+let crashSndT = 0, chopFxT = 0;
+const hardBox = k => blocks[HQ.i * N + HQ.j].list.includes(k);
+
+function placeBox(k) {
+  const i = k * 3, h = bmax[i + 1] - bmin[i + 1];
+  sm.p.set((bmin[i] + bmax[i]) / 2, bmin[i + 1], (bmin[i + 2] + bmax[i + 2]) / 2);
+  if (h > 0.01) sm.s.set(bmax[i] - bmin[i], h, bmax[i + 2] - bmin[i + 2]); else sm.s.set(0, 0, 0);
+  cityMesh.setMatrixAt(k, sm.m.compose(sm.p, sm.q, sm.s));
+  cityMesh.instanceMatrix.needsUpdate = true;
+}
+function hideRoof(k) {
+  if (roofOf[k] < 0) return;
+  roofMesh.setMatrixAt(roofOf[k], sm.m.makeScale(0, 0, 0));
+  roofMesh.instanceMatrix.needsUpdate = true;
+}
+
+function collapseBox(k) {
+  if (boxState[k] || hardBox(k)) return false;
+  const i = k * 3, h = bmax[i + 1] - bmin[i + 1];
+  boxState[k] = 1;
+  collapsing.push({ k, sp: clamp(h / 2.2, 22, 70), puffT: 0 });
+  hideRoof(k);
+  for (const t of stackOn[k]) collapseBox(t);
+  sm.p.set((bmin[i] + bmax[i]) / 2, 0, (bmin[i + 2] + bmax[i + 2]) / 2);
+  scareNear(sm.p, 60);
+  const now = performance.now();
+  if (now - crashSndT > 160 && sm.p.distanceTo(camera.position) < 450) { crashSndT = now; SFX.crash(); }
+  return true;
+}
+
+// knock the top off a building; chunks fly off toward dir
+function chopBox(k, amt, dir) {
+  if (boxState[k] || hardBox(k)) return;
+  if (stackOn[k].some(t => boxState[t] === 0)) { collapseBox(k); return; } // hit the bottom of a tower: the whole thing comes down
+  const i = k * 3, top = bmax[i + 1];
+  sm.p.set((bmin[i] + bmax[i]) / 2, top - Math.min(amt, top) / 2, (bmin[i + 2] + bmax[i + 2]) / 2);
+  debris(sm.p, dir, boxCols[k], Math.round(clamp(amt / 5, 4, 10)), clamp((bmax[i] - bmin[i]) / 5, 2, 5));
+  puff(sm.p, '#b8b0a2', 5, 4, 10);
+  hideRoof(k);
+  if (top - amt - bmin[i + 1] < 8) { collapseBox(k); return; }
+  bmax[i + 1] = top - amt; placeBox(k);
+  if (top - amt < 40) collapseBox(k);
+  SFX.crash();
+}
+// burn the top away bit by bit (breath and lightning)
+function meltBox(k, amt) {
+  if (boxState[k] || hardBox(k)) return;
+  if (stackOn[k].some(t => boxState[t] === 0)) { collapseBox(k); return; }
+  const i = k * 3;
+  hideRoof(k);
+  bmax[i + 1] -= amt;
+  if (bmax[i + 1] - bmin[i + 1] < 8) { collapseBox(k); return; }
+  placeBox(k);
+  if ((chopFxT -= 1) <= 0) { chopFxT = 8; debris(sm.p.set((bmin[i] + bmax[i]) / 2, bmax[i + 1], (bmin[i + 2] + bmax[i + 2]) / 2), UP, boxCols[k], 2, 2.5, 8); }
+}
+
+// every building with any part inside a cylinder (center p, radius r, from height y0 to y1) comes down.
+// Returns how many standing buildings were in the way.
+function smashAround(p, r, y0, y1) {
+  let n = 0;
+  const i0 = blockOf(p.x), j0 = blockOf(p.z);
+  for (let a = i0 - 1; a <= i0 + 1; a++) for (let c = j0 - 1; c <= j0 + 1; c++) {
+    if (a < 0 || c < 0 || a >= N || c >= N) continue;
+    for (const k of blocks[a * N + c].list) {
+      const i = k * 3;
+      if (boxState[k] === 2 || bmin[i + 1] > y1 || bmax[i + 1] < y0) continue;
+      const dx = Math.max(bmin[i] - p.x, 0, p.x - bmax[i]), dz = Math.max(bmin[i + 2] - p.z, 0, p.z - bmax[i + 2]);
+      if (dx * dx + dz * dz > r * r) continue;
+      if (bmax[i + 1] - y0 > 6 && !hardBox(k)) n++;
+      collapseBox(k);
+    }
+  }
+  return n;
+}
+// chop every building that comes within r of the point p (a punch); returns how many got hit
+function chopNear(p, r, amt, dir) {
+  let n = 0;
+  const i0 = blockOf(p.x), j0 = blockOf(p.z);
+  for (let a = i0 - 1; a <= i0 + 1; a++) for (let c = j0 - 1; c <= j0 + 1; c++) {
+    if (a < 0 || c < 0 || a >= N || c >= N) continue;
+    for (const k of blocks[a * N + c].list) {
+      if (boxState[k]) continue;
+      const i = k * 3;
+      const dx = Math.max(bmin[i] - p.x, 0, p.x - bmax[i]), dy = Math.max(bmin[i + 1] - p.y, 0, p.y - bmax[i + 1]), dz = Math.max(bmin[i + 2] - p.z, 0, p.z - bmax[i + 2]);
+      if (dx * dx + dy * dy + dz * dz > r * r || hardBox(k)) continue;
+      chopBox(k, amt, dir); n++;
+    }
+  }
+  return n;
+}
+
+function updateSmash(dt) {
+  for (let q = collapsing.length - 1; q >= 0; q--) {
+    const c = collapsing[q], k = c.k, i = k * 3, b = baseOf[k];
+    // a tower top rides down on the building under it
+    if (b >= 0 && bmin[i + 1] > bmax[b * 3 + 1]) { const drop = bmin[i + 1] - bmax[b * 3 + 1]; bmin[i + 1] -= drop; bmax[i + 1] -= drop; }
+    bmax[i + 1] -= c.sp * dt;
+    const floor = b >= 0 ? bmin[i + 1] : RUBBLE;
+    const cx = (bmin[i] + bmax[i]) / 2, cz = (bmin[i + 2] + bmax[i + 2]) / 2, w = bmax[i] - bmin[i], d = bmax[i + 2] - bmin[i + 2];
+    if ((c.puffT -= dt) <= 0 && b < 0) {
+      c.puffT = 0.1;
+      for (let n = 0; n < 2; n++) {
+        const side = Math.random() < 0.5, u = rand(-0.5, 0.5);
+        sm.p.set(cx + (side ? u * w : Math.sign(u) * w / 2), rand(1, 6), cz + (side ? Math.sign(u) * d / 2 : u * d));
+        puff(sm.p, '#b8b0a2', 1, rand(3, 5), 9);
+      }
+      if (Math.random() < 0.35) debris(sm.p.set(cx, bmax[i + 1], cz), UP, boxCols[k], 1, 2, 6);
+    }
+    if (bmax[i + 1] <= floor) {
+      bmax[i + 1] = floor;
+      boxState[k] = 2;
+      collapsing.splice(q, 1);
+      if (b >= 0) { bmin[i + 1] = bmax[i + 1] = 0; }
+      else {
+        cityMesh.setColorAt(k, sm.c.set(boxCols[k]).lerp(sm.rubble, 0.7)); cityMesh.instanceColor.needsUpdate = true;
+        puff(sm.p.set(cx, 2, cz), '#c9c1b3', 6, Math.min(w, d) * 0.2, 14);
+      }
+    }
+    placeBox(k);
+  }
+}
+
+// the Lab's robots put every building back
+function restoreCity() {
+  bmin.set(bmin0); bmax.set(bmax0); boxState.fill(0); collapsing.length = 0;
+  for (let k = 0; k < BN; k++) { placeBox(k); cityMesh.setColorAt(k, sm.c.set(boxCols[k])); }
+  cityMesh.instanceColor.needsUpdate = true;
+  roofMats.forEach((m, n) => roofMesh.setMatrixAt(n, m));
+  roofMesh.instanceMatrix.needsUpdate = true;
+}
+
+// chunks of building that tumble and bounce
+const chunkGeo = new THREE.BoxGeometry(1, 1, 1);
+function debris(pos, dir, col, n, size = 3, speed = 18) {
+  for (let q = 0; q < n; q++) {
+    const m = new THREE.MeshLambertMaterial({ color: col });
+    m.userData.fxOwned = true;
+    const o = new THREE.Mesh(chunkGeo, m);
+    o.position.set(pos.x + rand(-4, 4), pos.y + rand(-2, 2), pos.z + rand(-4, 4));
+    const s = size * rand(0.5, 1.3), base = new V(s, s * rand(0.5, 1), s * rand(0.6, 1.2));
+    o.scale.copy(base);
+    const v = new V(rand(-1, 1), rand(0.4, 1.4), rand(-1, 1)).multiplyScalar(speed * 0.7).addScaledVector(dir, speed);
+    const spin = new V(rand(-6, 6), rand(-6, 6), rand(-6, 6));
+    addFx(o, rand(1.6, 2.4), (e, k, dt) => {
+      v.y -= 35 * dt;
+      o.position.addScaledVector(v, dt);
+      if (o.position.y < s * 0.4) { o.position.y = s * 0.4; v.multiplyScalar(0.45); v.y = Math.abs(v.y) * 0.4; spin.multiplyScalar(0.5); }
+      o.rotation.x += spin.x * dt; o.rotation.y += spin.y * dt; o.rotation.z += spin.z * dt;
+      if (k > 0.75) o.scale.copy(base).multiplyScalar(1 - (k - 0.75) * 4);
+    });
+  }
 }

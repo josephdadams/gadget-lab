@@ -88,6 +88,7 @@ function findHookTarget(o, d0, out) {
 
 // dir/origin given = aimed at a spot on the screen (touch or wand); otherwise the crosshair aim for that arm
 function fireHook(side, dir, origin) {
+  if (kaiju.on) { kaijuPunch(side); return; } // the hook buttons punch in monster mode
   if (dragon.state === 'ride') hopOffDragon(); // jump off the dragon and swing away
   const h = player.hooks[side];
   h.state = 'none'; h.crook = null;
@@ -279,6 +280,7 @@ function updateCamera(dt) {
   const P = player, hsp = Math.hypot(P.vel.x, P.vel.z), sp = P.vel.length();
   const fov = 70 + Math.min(sp, 60) * 0.33;
   if (Math.abs(camera.fov - fov) > 0.05) { camera.fov += (fov - camera.fov) * Math.min(1, dt * 4); camera.updateProjectionMatrix(); }
+  if (kaiju.on) { kaijuCamera(); return; }
   if (firstPerson) {
     // looking out of your goggles; the camera never turns on its own here
     const F = dirFrom(camYaw, camPitch, camT.f);
